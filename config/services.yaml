@@ -6,6 +6,10 @@
 parameters:
     locale: 'en'
 
+    # Scheduler contact email address
+    scheduler.contact.emails.from: contactus@sportac.us
+    scheduler.contact.emails.to:   john.price@ayso894.net
+
 services:
     # default configuration for services in *this* file
     _defaults:

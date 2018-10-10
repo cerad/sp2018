@@ -22,8 +22,3 @@ game:
 official_schedule:
   path: /schedule-official
   controller: xxx
-
-scheduler_contact:
-  path: /scheduler_contact
-  controller: xxx
-

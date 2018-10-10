@@ -9,8 +9,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
-//use Scheduler\SchBundle\Entity\Enquiry;
-//use Scheduler\SchBundle\Form\EnquiryType;
+use App\Entity\Enquiry;
+use App\Form\EnquiryType;
 
 class PageController extends AbstractController
 {
@@ -54,31 +54,29 @@ class PageController extends AbstractController
    * @Route("/contact", name="scheduler_contact")
    * @Template()
    */
-  /*
-  public function contactAction(Request $request)
+  public function contactAction(Request $request, \Swift_Mailer $mailer)
   {
     $enquiry = new Enquiry();
     $form = $this->createForm(EnquiryType::class, $enquiry);
     $form->handleRequest($request);
 
-    if ($form->isValid()) {
+    if ($form->isSubmitted() && $form->isValid()) {
       // send an email
-      $message = \Swift_Message::newInstance()
+      $message = (new \Swift_Message())
         ->setSubject('Contact enquiry from Sportac.us')
-        ->setFrom($this->container->getParameter('scheduler.contact.emails.from'))
-        ->setTo($this->container->getParameter('scheduler.contact.emails.to'))
-        ->setBody($this->renderView('SchedulerBundle:Page:contactEmail.txt.twig', array('enquiry' => $enquiry)));
-      $this->get('mailer')->send($message);
+        ->setFrom($this->getParameter('scheduler.contact.emails.from'))
+        ->setTo($this->getParameter('scheduler.contact.emails.to'))
+        ->setBody($this->renderView('page/contactEmail.txt.twig', ['enquiry' => $enquiry]));
 
-      $this->get('session')->getFlashBag()->add('contact-notice', 'Your contact enquiry was successfully sent. Thank you!');
+      $mailer->send($message);
+
+      $this->addFlash('contact-notice', 'Your contact enquiry was successfully sent. Thank you!');
 
       // Redirect - This is important to prevent users re-posting
       // the form if they refresh the page
       return $this->redirect($this->generateUrl('scheduler_contact'));
     }
-    return $this->render('SchedulerBundle:Page:contact.html.twig',
-      array('form' => $form->createView())
-    );
-  }*/
+    return ['form' => $form->createView()];
+  }
 }
 
