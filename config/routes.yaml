@@ -1,3 +1,29 @@
 #index:
 #    path: /
 #    controller: App\Controller\DefaultController::index
+
+# Todo
+fos_user_security_login:
+  path: /user/login
+  controller: xxx
+
+fos_user_registration_register:
+  path: /user/register
+  controller: xxx
+
+fos_user_resetting_request:
+  path: /user/reset-request
+  controller: xxx
+
+game:
+  path: /schedule
+  controller: xxx
+
+official_schedule:
+  path: /schedule-official
+  controller: xxx
+
+scheduler_contact:
+  path: /scheduler_contact
+  controller: xxx
+
