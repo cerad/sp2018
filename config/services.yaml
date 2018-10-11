@@ -9,6 +9,7 @@ parameters:
     # Scheduler contact email address
     scheduler.contact.emails.from: contactus@sportac.us
     scheduler.contact.emails.to:   john.price@ayso894.net
+    google_map_key: '%env(GOOGLE_MAP_KEY)%'
 
 services:
     # default configuration for services in *this* file

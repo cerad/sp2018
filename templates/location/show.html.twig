@@ -1,4 +1,4 @@
-{% extends 'SchedulerBundle::layout.html.twig' %}
+{% extends 'layout.html.twig' %}
 {% block title %}{{ title }}{% endblock %}
 
 {% block body %}
@@ -30,7 +30,7 @@
       <th>Map</th>
       <td>{# % set mapurl='q=' ~ entity.nameaddr|url_encode() ~ '%20@' ~ entity.latitude|url_encode() ~ ',' ~ entity.longitude|url_encode() ~ '&hl=en&t=h&z=19' % #}
       {% set mapquery='q=' ~ entity.latitude|url_encode() ~ ',' ~ entity.longitude|url_encode() %}
-      <iframe width="600" height="450" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?{{ mapquery }}&maptype=satellite&zoom=17&key=AIzaSyAvL7Jfi8b6sf05p-jQDaglvQi8b3QmpLQ" allowfullscreen></iframe>
+      <iframe width="600" height="450" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?{{ mapquery }}&maptype=satellite&zoom=17&key={{ map_key }}" allowfullscreen></iframe>
       {# <br /><a href="https://www.google.com/maps?{{ mapurl }}" class="btn btn-default" target="_blank">Click for map</a> #}
       </td>
     </tr>

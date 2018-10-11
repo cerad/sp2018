@@ -51,9 +51,7 @@ class LocationController extends AbstractController
    */
   public function showAction($id)
   {
-    $em = $this->getDoctrine()->getManager();
-
-    $entity = $em->getRepository('SchedulerBundle:Location')->find($id);
+    $entity = $this->locationRepository->find($id);
 
     if (!$entity) {
       throw $this->createNotFoundException('Unable to find Location entity.');
@@ -65,6 +63,7 @@ class LocationController extends AbstractController
       'title' => 'Show Location',
       'entity' => $entity,
       'delete_form' => $deleteForm->createView(),
+      'map_key' => $this->getParameter('google_map_key'),
     );
   }
 
