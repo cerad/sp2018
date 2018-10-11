@@ -13,6 +13,18 @@ Many of the new S4 files are set to 4.  Need to pick one or the other at some po
 
 Changing all controllers with @Template to return arrays
 
+For now, get rid of all my array access traits, failed experiment.
+
+
+Refactor repositories to use ServiceEntityRepository.  
+Note that doing so implies entities can only belong to one entity manager.
+
+### TODO mysql case issue
+
+ALTER TABLE Location RENAME INDEX uniq_a7e8eb9d5e237e06 TO UNIQ_5E9E89CB5E237E06;
+
+Have to explicitly specify table names
+
 ### PageController
 
 Basic index, help and contact screens
@@ -23,3 +35,9 @@ Added the print.css/screen.css as well.
 Todo: See if using webpack is practical
 
 Original has extra web/css/screen.css?
+
+### Entities
+
+Enquiry - Not a real entity, leave for now
+
+Location - Standalone

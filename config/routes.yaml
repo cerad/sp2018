@@ -2,6 +2,13 @@
 #    path: /
 #    controller: App\Controller\DefaultController::index
 
+# Tried to get rid of trailing slash but I guess a prefix is needed
+# Maybe investigate later
+controllers:
+  resource: '../src/Controller/'
+  type: annotation
+  trailing_slash_on_root: false
+
 # Todo
 fos_user_security_login:
   path: /user/login
