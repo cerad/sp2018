@@ -1,9 +1,10 @@
+{# Not really sure how useful this is but keep for now #}
 {% extends 'base.html.twig' %}
 
 {% block stylesheets %}
   {{ parent() }}
-  <link href="{{ asset('bundles/scheduler/css/screen.css') }}" type="text/css" rel="stylesheet" media="screen"/>
-  <link href="{{ asset('bundles/scheduler/css/print.css') }}" type="text/css" rel="stylesheet" media="print"/>
+  <link href="{{ asset('css/screen.css') }}" type="text/css" rel="stylesheet" media="screen"/>
+  <link href="{{ asset('css/print.css')  }}" type="text/css" rel="stylesheet" media="print"/>
 {% endblock %}
 
 {% block sidebar %}
