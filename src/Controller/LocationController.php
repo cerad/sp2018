@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace App\Controller;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -10,7 +13,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 use App\Entity\Location;
 use App\Repository\LocationRepository;
-use Scheduler\SchBundle\Form\LocationType;
+use App\Form\LocationType;
+
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 /**
@@ -27,6 +31,14 @@ class LocationController extends AbstractController
   {
     $this->locationRepository = $locationRepository;
   }
+  private function findLocation(int $id)
+  {
+    $location = $this->locationRepository->find($id);
+    if (!$location) {
+      throw $this->createNotFoundException('Unable to find Location entity.');
+    }
+    return $location;
+  }
   /**
    * Lists all Location entities.
    *
@@ -35,11 +47,11 @@ class LocationController extends AbstractController
    */
   public function indexAction()
   {
-    $entities = $this->locationRepository->findAllOrderedByName();
+    $locations = $this->locationRepository->findAllOrderedByName();
 
     return array(
       'title' => 'Locations',
-      'entities' => $entities,
+      'entities' => $locations,
     );
   }
 
@@ -49,19 +61,15 @@ class LocationController extends AbstractController
    * @Route("/{id}/show", name="location_show")
    * @Template()
    */
-  public function showAction($id)
+  public function showAction(int $id)
   {
-    $entity = $this->locationRepository->find($id);
-
-    if (!$entity) {
-      throw $this->createNotFoundException('Unable to find Location entity.');
-    }
+    $location = $this->findLocation($id);
 
     $deleteForm = $this->createDeleteForm($id);
 
     return array(
       'title' => 'Show Location',
-      'entity' => $entity,
+      'entity' => $location,
       'delete_form' => $deleteForm->createView(),
       'map_key' => $this->getParameter('google_map_key'),
     );
@@ -73,17 +81,16 @@ class LocationController extends AbstractController
    * @Route("/redirect/{id}", name="location_redirect")
    * @Template()
    */
-  public function mapRedirectAction($id)
+  public function mapRedirectAction(int $id)
   {
-    $em = $this->getDoctrine()->getManager();
+    $location = $this->findLocation($id);
 
-    $entity = $em->getRepository('SchedulerBundle:Location')->find($id);
+    //$locationData = "{$location->getLatitude()},{$location->getLongitude()} ({$location->getLongname()})";
 
-    if (!$entity) {
-      throw $this->createNotFoundException('Unable to find Location entity.');
-    }
-
-    return $this->redirect('https://maps.google.com/maps?q=' . urlencode($entity->getLatitude() . ',' . $entity->getLongitude() . ' (' . $entity->getLongname() . ')') . '&hl=en&t=h&z=19');
+    return $this->redirect(
+      'https://maps.google.com/maps?q=' .
+      urlencode(
+        $location->getLatitude() . ',' . $location->getLongitude() . ' (' . $location->getLongname() . ')') . '&hl=en&t=h&z=19');
   }
 
   /**
@@ -94,13 +101,13 @@ class LocationController extends AbstractController
    */
   public function newAction()
   {
-    $entity = new Location();
-    $form = $this->createForm(LocationType::class, $entity);
+    $location = new Location();
+    $form = $this->createForm(LocationType::class, $location);
 
     return array(
-      'title' => 'New Location',
-      'entity' => $entity,
-      'form' => $form->createView(),
+      'title'  => 'New Location',
+      'entity' => $location,
+      'form'   => $form->createView(),
     );
   }
 
@@ -108,26 +115,21 @@ class LocationController extends AbstractController
    * Clone one entity to make a new Location entity.
    *
    * @Route("/{id}/clone", name="location_clone")
-   * @Template("SchedulerBundle:Location:new.html.twig")
+   * @Template("location/new.html.twig")
    */
-  public function cloneAction($id)
+  public function cloneAction(int $id)
   {
-    $em = $this->getDoctrine()->getManager();
+    $location = $this->findLocation($id);
 
-    $entity = $em->getRepository('SchedulerBundle:Location')->find($id);
-
-    if (!$entity) {
-      throw $this->createNotFoundException('Unable to find Location entity.');
-    }
     // reset id so persist will create a new instance.
-    $entity->resetForClone();
+    $location->resetForClone();
 
-    $form = $this->createForm(LocationType::class, $entity);
+    $form = $this->createForm(LocationType::class, $location);
 
     return array(
-      'title' => 'Clone Location',
-      'entity' => $entity,
-      'form' => $form->createView(),
+      'title'  => 'Clone Location',
+      'entity' => $location,
+      'form'   => $form->createView(),
     );
   }
 
@@ -135,25 +137,25 @@ class LocationController extends AbstractController
    * Creates a new Location entity.
    *
    * @Route("/create", name="location_create", methods={"POST"})
-   * @Template("SchedulerBundle:Location:new.html.twig")
+   * @Template("location/new.html.twig")
    */
   public function createAction(Request $request)
   {
-    $entity = new Location();
-    $form = $this->createForm(LocationType::class, $entity);
-    //$form->bind($request);
+    $location = new Location();
+    $form = $this->createForm(LocationType::class, $location);
+
     $form->handleRequest($request);
 
-    if ($form->isValid()) {
-      $em = $this->getDoctrine()->getManager();
-      $em->persist($entity);
-      $em->flush();
+    if ($form->isSubmitted() && $form->isValid()) {
 
-      return $this->redirect($this->generateUrl('location_show', array('id' => $entity->getId())));
+      $this->locationRepository->em->persist($location);
+      $this->locationRepository->em->flush();
+
+      return $this->redirectToRoute('location_show', ['id' => $location->getId()]);
     }
 
     return array(
-      'entity' => $entity,
+      'entity' => $location,
       'form' => $form->createView(),
     );
   }
@@ -164,23 +166,17 @@ class LocationController extends AbstractController
    * @Route("/{id}/edit", name="location_edit")
    * @Template()
    */
-  public function editAction($id)
+  public function editAction(int $id)
   {
-    $em = $this->getDoctrine()->getManager();
+    $location = $this->findLocation($id);
 
-    $entity = $em->getRepository('SchedulerBundle:Location')->find($id);
-
-    if (!$entity) {
-      throw $this->createNotFoundException('Unable to find Location entity.');
-    }
-
-    $editForm = $this->createForm(LocationType::class, $entity);
+    $editForm = $this->createForm(LocationType::class, $location);
     $deleteForm = $this->createDeleteForm($id);
 
     return array(
-      'title' => 'Edit Location',
-      'entity' => $entity,
-      'edit_form' => $editForm->createView(),
+      'title'  => 'Edit Location',
+      'entity' => $location,
+      'edit_form'   => $editForm->createView(),
       'delete_form' => $deleteForm->createView(),
     );
   }
@@ -189,33 +185,28 @@ class LocationController extends AbstractController
    * Edits an existing Location entity.
    *
    * @Route("/{id}/update", name="location_update", methods={"POST"})
-   * @Template("SchedulerBundle:Location:edit.html.twig")
+   * @Template("location/edit.html.twig")
    */
-  public function updateAction(Request $request, $id)
+  public function updateAction(Request $request, int $id)
   {
-    $em = $this->getDoctrine()->getManager();
-
-    $entity = $em->getRepository('SchedulerBundle:Location')->find($id);
-
-    if (!$entity) {
-      throw $this->createNotFoundException('Unable to find Location entity.');
-    }
+    $location = $this->findLocation($id);
 
     $deleteForm = $this->createDeleteForm($id);
-    $editForm = $this->createForm(LocationType::class, $entity);
-    //$editForm->bind($request);
+    $editForm   = $this->createForm(LocationType::class, $location);
+
     $editForm->handleRequest($request);
 
-    if ($editForm->isValid()) {
-      $em->persist($entity);
-      $em->flush();
+    if ($editForm->isSubmitted() && $editForm->isValid()) {
 
-      return $this->redirect($this->generateUrl('location_edit', array('id' => $id)));
+      $this->locationRepository->em->persist($location);
+      $this->locationRepository->em->flush();
+
+      return $this->redirectToRoute('location_edit', ['id' => $id]);
     }
 
     return array(
-      'entity' => $entity,
-      'edit_form' => $editForm->createView(),
+      'entity'      => $location,
+      'edit_form'   => $editForm->createView(),
       'delete_form' => $deleteForm->createView(),
     );
   }
@@ -225,30 +216,26 @@ class LocationController extends AbstractController
    *
    * @Route("/{id}/delete", name="location_delete", methods={"POST"})
    */
-  public function deleteAction(Request $request, $id)
+  public function deleteAction(Request $request, int $id)
   {
     $form = $this->createDeleteForm($id);
-    //$form->bind($request);
+
     $form->handleRequest($request);
 
-    if ($form->isValid()) {
-      $em = $this->getDoctrine()->getManager();
-      $entity = $em->getRepository('SchedulerBundle:Location')->find($id);
+    if ($form->isSubmitted() && $form->isValid()) {
 
-      if (!$entity) {
-        throw $this->createNotFoundException('Unable to find Location entity.');
-      }
+      $location = $this->findLocation($id);
 
-      $em->remove($entity);
-      $em->flush();
+      $this->locationRepository->em->remove($location);
+      $this->locationRepository->em->flush ();
     }
 
-    return $this->redirect($this->generateUrl('location'));
+    return $this->redirectToRoute('location');
   }
 
-  private function createDeleteForm($id)
+  private function createDeleteForm(int $id)
   {
-    return $this->createFormBuilder(array('id' => $id))
+    return $this->createFormBuilder(['id' => $id])
       ->add('id', HiddenType::class)
       ->getForm();
   }
@@ -257,21 +244,19 @@ class LocationController extends AbstractController
    * Exports Location entities.
    *
    * @Route("/export.csv", name="location_export_csv")
-   * @Template("SchedulerBundle:Location:export.csv.twig")
    */
   public function exportCsvAction()
   {
-    $repository = $this->getDoctrine()->getRepository('SchedulerBundle:Location');
-    $query = $repository->createQueryBuilder('s');
-    $query->orderBy('s.name', 'ASC');
+    $data = $this->locationRepository->findAllOrderedByName();
 
-    $data = $query->getQuery()->getResult();
     $filename = "locations-" . date("Ymd_His") . ".csv";
 
-    $response = $this->render('SchedulerBundle:Location:export.csv.twig', array('data' => $data));
+    $response = $this->render('location/export.csv.twig', array('data' => $data));
+
     $response->headers->set('Content-Type', 'text/csv');
 
     $response->headers->set('Content-Disposition', 'attachment; filename=' . $filename);
+
     return $response;
   }
 }
