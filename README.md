@@ -43,3 +43,17 @@ Original has extra web/css/screen.css?
 Enquiry - Not a real entity, leave for now
 
 Location - Standalone
+
+### Controllers
+
+LocationController was the first to be ported.
+* Extend from AbstractController
+* Injected LocationRepository
+* Added findLocation
+* Access entity manager via repository
+
+
+RegionController was next.
+* Remove action from form templates
+* Remove Template annotation
+* Combine new/create and edit/update
