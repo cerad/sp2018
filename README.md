@@ -57,3 +57,5 @@ RegionController was next.
 * Remove action from form templates
 * Remove Template annotation
 * Combine new/create and edit/update
+
+Going back and forth on form standardization.  Where to put styling and where to put actions?

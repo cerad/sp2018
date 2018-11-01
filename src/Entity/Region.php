@@ -93,6 +93,11 @@ class Region
   {
     return $this->id;
   }
+  public function setId(int $id)
+  {
+    $this->id = $id;
+    return $this;
+  }
 
   /**
    * Set name

@@ -38,9 +38,4 @@ class RegionType extends AbstractType
       'data_class' => 'App\Entity\Region'
     ));
   }
-
-  public function getBlockPrefix()
-  {
-    return 'scheduler_schbundle_regiontype';
-  }
 }

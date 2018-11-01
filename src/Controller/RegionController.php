@@ -2,12 +2,12 @@
 
 namespace App\Controller;
 
+use App\Form\RegionDeleteType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 use App\Entity\Region;
 use App\Form\RegionType;
@@ -27,25 +27,17 @@ class RegionController extends AbstractController
   {
     $this->regionRepository = $regionRepository;
   }
-  private function findRegion(int $id)
-  {
-    $region = $this->regionRepository->find($id);
-    if (!$region) {
-      throw $this->createNotFoundException('Unable to find Region entity.');
-    }
-    return $region;
-  }
 
   /**
    * Lists all Region entities.
    *
-   * @Route("/", name="region")
+   * @Route("/list", name="region_list")
    */
-  public function indexAction()
+  public function listAction()
   {
     $regions = $this->regionRepository->findAllOrderedByName();
 
-    return $this->render('region/index.html.twig',
+    return $this->render('region/list.html.twig',
       [
         'title'   => 'Regions',
         'regions' => $regions,
@@ -55,13 +47,11 @@ class RegionController extends AbstractController
   /**
    * Finds and displays a Region entity.
    *
-   * @Route("/{id}/show", name="region_show")
+   * @Route("/show/{id}", name="region_show")
    */
-  public function showAction($id)
+  public function showAction(Region $region)
   {
-    $region = $this->findRegion($id);
-
-    $deleteForm = $this->createDeleteForm($id);
+    $deleteForm = $this->createForm(RegionDeleteType::class, $region);
 
     return $this->render('region/show.html.twig',
       [
@@ -72,28 +62,9 @@ class RegionController extends AbstractController
   }
 
   /**
-   * Displays a form to create a new Region entity.
-   *
-   * @Route("/new", name="region_new")
-   * @Template()
-   */
-  public function newAction()
-  {
-    $region = new Region();
-    $form = $this->createForm(RegionType::class, $region);
-
-    return [
-      'title'  => 'Regions',
-      'region' => $region,
-      'form'   => $form->createView(),
-    ];
-  }
-
-  /**
    * Creates a new Region entity.
    *
    * @Route("/create", name="region_create")
-   * @Template("region/new.html.twig")
    */
   public function createAction(Request $request)
   {
@@ -107,94 +78,62 @@ class RegionController extends AbstractController
       $this->regionRepository->em->persist($region);
       $this->regionRepository->em->flush();
 
-      return $this->redirectToRoute('region_show', ['id' => $region->getId()]);
+      return $this->redirectToRoute('region_update', ['id' => $region->getId()]);
     }
-
-    return [
-      'title'  => 'Regions',
-      'region' => $region,
-      'form'   => $form->createView(),
-    ];
-  }
-
-  /**
-   * Displays a form to edit an existing Region entity.
-   *
-   * @Route("/{id}/edit", name="region_edit")
-   */
-  public function editAction($id)
-  {
-    $region = $this->findRegion($id);
-
-    $editForm   = $this->createForm(RegionType::class, $region);
-    $deleteForm = $this->createDeleteForm($id);
-
-    return $this->render('region/edit.html.twig',
+    return $this->render('region/create.html.twig',
       [
         'title'  => 'Regions',
         'region' => $region,
-        'edit_form'   => $editForm->createView(),
-        'delete_form' => $deleteForm->createView(),
+        'form'   => $form->createView(),
       ]);
   }
 
   /**
    * Edits an existing Region entity.
    *
-   * @Route("/{id}/update", name="region_update")
-   * @Template("region/edit.html.twig")
+   * @Route("/update/{id}", name="region_update")
    */
-  public function updateAction(Request $request, $id)
+  public function updateAction(Request $request, Region $region)
   {
-    $region = $this->findRegion($id);
+    $updateForm = $this->createForm(RegionType::class, $region);
+    $deleteForm = $this->createForm(RegionDeleteType::class, $region);
 
-    $editForm   = $this->createForm(RegionType::class, $region);
-    $deleteForm = $this->createDeleteForm($id);
+    $updateForm->handleRequest($request);
 
-    $editForm->handleRequest($request);
-
-    if ($editForm->isSubmitted() && $editForm->isValid()) {
+    if ($updateForm->isSubmitted() && $updateForm->isValid()) {
 
       $this->regionRepository->em->persist($region);
       $this->regionRepository->em->flush();
 
-      return $this->redirectToRoute('region_edit', ['id' => $id]);
+      return $this->redirectToRoute('region_update', ['id' => $region->getId()]);
     }
 
-    return [
-      'title'  => 'Regions',
-      'region' => $region,
-      'edit_form'   => $editForm->createView(),
-      'delete_form' => $deleteForm->createView(),
-    ];
+    return $this->render('region/update.html.twig',
+      [
+        'title'  => 'Regions',
+        'region' => $region,
+        'update_form' => $updateForm->createView(),
+        'delete_form' => $deleteForm->createView(),
+      ]);
   }
 
   /**
    * Deletes a Region entity.
    *
-   * @Route("/{id}/delete", name="region_delete", methods={"POST"})
+   * @Route("/delete/{id}", name="region_delete", methods={"POST"})
    */
-  public function deleteAction(Request $request, $id)
+  public function deleteAction(Request $request, Region $region)
   {
-    $form = $this->createDeleteForm($id);
+    $form = $this->createForm(RegionDeleteType::class, $region);
 
     $form->handleRequest($request);
 
     if ($form->isSubmitted() && $form->isValid()) {
-
-      $region = $this->findRegion($id);
-
       $this->regionRepository->em->remove($region);
       $this->regionRepository->em->flush();
     }
 
-    return $this->redirectToRoute('region');
+    return $this->redirectToRoute('region_list');
   }
 
-  private function createDeleteForm($id)
-  {
-    return $this->createFormBuilder(array('id' => $id))
-      ->add('id', HiddenType::class)
-      ->getForm();
-  }
 }

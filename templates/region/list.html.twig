@@ -5,6 +5,8 @@
 {% block body %}
   <h1>{{ title }}</h1>
 
+  <p><a href="{{ path('region_create') }}" class="btn btn-default"><i class="glyphicon glyphicon-plus"></i> Create Region</a></p>
+
   <table class="records_list table table-hover table-condensed">
     <thead>
     <tr>
@@ -19,7 +21,7 @@
     <tbody>
     {% for region in regions %}
       <tr>
-        <td><a href="{{ path('region_edit', { 'id': region.id }) }}">{{ region.name }}</a></td>
+        <td><a href="{{ path('region_update', { 'id': region.id }) }}">{{ region.name }}</a></td>
         <td>{{ region.longname }}</td>
         <td>{{ region.pocname }}</td>
         <td>{{ region.pocemail }}</td>
@@ -30,5 +32,5 @@
     </tbody>
   </table>
 
-  <p><a href="{{ path('region_new') }}" class="btn btn-default"><i class="glyphicon glyphicon-plus"></i> Create Region</a></p>
+  <p><a href="{{ path('region_create') }}" class="btn btn-default"><i class="glyphicon glyphicon-plus"></i> Create Region</a></p>
 {% endblock %}
