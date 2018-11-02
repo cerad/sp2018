@@ -1,0 +1,18 @@
+{% extends 'layout.html.twig' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+  <h1>{{ title }}</h1>
+
+  {{ form_start(update_form, {'action': path('project_update', { 'id': project.id }), 'attr': {'class': 'contact'} }) }}
+    {{ form_widget(update_form) }}
+    <p>
+      <button type="submit" class="btn btn-primary btn-large">Update</button>
+    </p>
+  {{ form_end(update_form) }}
+
+  <p><a href="{{ path('project_list') }}" class="btn btn-default">
+      <i class="glyphicon glyphicon-backward"></i> Back to the list</a>
+  </p>
+  {{ include('project/delete_form.html.twig') }}
+{% endblock %}

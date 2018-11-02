@@ -59,3 +59,19 @@ RegionController was next.
 * Combine new/create and edit/update
 
 Going back and forth on form standardization.  Where to put styling and where to put actions?
+
+### Project
+
+Got rid of the var doc annotations in Project.  
+Replaced with return types.  
+Need to be very careful with nulls.  
+Need to look at returning arrays of a given type.
+Still not sure if this is a good idea or not.
+Empty form text strings return null not an empty string.
+empty_data fixes that
+
+What about non-set dates?  Hard to initialize new dates.
+
+And existing data is a problem though can tweak getters to return proper data types.
+
+

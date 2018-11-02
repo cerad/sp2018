@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace App\Controller;
 
-use App\Form\RegionDeleteType;
 use Symfony\Component\HttpFoundation\Request;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 use Symfony\Component\Routing\Annotation\Route;
 
 use App\Entity\Region;
 use App\Form\RegionType;
+use App\Form\RegionDeleteType;
 use App\Repository\RegionRepository;
 
 /**

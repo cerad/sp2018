@@ -1,0 +1,56 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+  <h1>{{ title }}</h1>
+
+  <h2>Active Projects</h2>
+  <table class="records_list table table-hover table-condensed">
+      <thead><tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th>Long Name</th>
+      <th>Start Date</th>
+      <th>End Date</th>
+    </tr></thead>
+    <tbody>
+    {% for project in projects %}{% if not project.archived %}
+      <tr>
+        <td><a href="{{ path('project_update', { 'id': project.id }) }}">{{ project.id }}</a></td>
+        <td>{{ project.name }}</td>
+        <td>{{ project.longname }}</td>
+        <td>{% if project.startdate %}{{ project.startdate|date('Y-m-d') }}{% endif %}</td>
+        <td>{% if project.enddate %}{{ project.enddate|date('Y-m-d') }}{% endif %}</td>
+      </tr>
+		{% endif %}{% endfor %}
+    </tbody>
+  </table>
+
+	<p><a href="{{ path('project_create') }}" class="btn btn-default"><i class="glyphicon glyphicon-plus"></i> Create Project</a></p>
+
+  <h2>Archived Projects</h2>
+  <table class="records_list table table-hover table-condensed">
+      <thead><tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th>Long Name</th>
+      <th>Start Date</th>
+      <th>End Date</th>
+    </tr></thead>
+    <tbody>
+    {% for project in projects %}{% if project.archived %}
+      <tr>
+        <td><a href="{{ path('project_update', { 'id': project.id }) }}">{{ project.id }}</a></td>
+        <td>{{ project.name }}</td>
+        <td>{{ project.longname }}</td>
+        <td>{% if project.startdate %}{{ project.startdate|date('Y-m-d') }}{% endif %}</td>
+        <td>{% if project.enddate %}{{ project.enddate|date('Y-m-d') }}{% endif %}</td>
+      </tr>
+		{% endif %}{% endfor %}
+    </tbody>
+  </table>
+
+  {#<p><a href="{{ path('project_export_csv') }}" class="btn btn-default"><i class="glyphicon glyphicon-arrow-down"></i> CSV Export</a></p>#}
+
+{% endblock %}
