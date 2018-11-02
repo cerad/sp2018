@@ -74,4 +74,17 @@ What about non-set dates?  Hard to initialize new dates.
 
 And existing data is a problem though can tweak getters to return proper data types.
 
+### AgeGroup
 
+Brought over the entity and implemented the list all functionality.
+Not sure how much individual editing is actually being done.
+
+### Database
+
+* AgeGroup links to Region,Project 
+* Project many-to-many with OffPos via project_offpos
+* Region is standalone
+* Game linked to AgeGroup, Location, Region, Project
+* Team linked to AgeGroup, Region, Project
+* project_game_team      Game, Team, Level (probably AgeGroup)
+* project_game_officials Game, Official, Team
